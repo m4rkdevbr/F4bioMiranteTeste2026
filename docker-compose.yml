@@ -1,6 +1,7 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    build:
+      context: ./deploy/postgres
     environment:
       POSTGRES_USER: pipeline
       POSTGRES_PASSWORD: pipeline
@@ -9,7 +10,6 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./sql/init/01_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U pipeline -d modernization"]
       interval: 5s
