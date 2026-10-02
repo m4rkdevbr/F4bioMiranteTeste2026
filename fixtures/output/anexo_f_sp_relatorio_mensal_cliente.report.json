@@ -1,0 +1,212 @@
+{
+  "run_id": "e231172f-18be-4254-8392-5f176a734c76",
+  "procedure_name": "anexo_f_sp_relatorio_mensal_cliente",
+  "parsing": {
+    "errors": [],
+    "ir_summary": {
+      "kind": "function",
+      "name": "sp_relatorio_mensal_cliente",
+      "param_count": 3,
+      "sql_fragment_count": 2
+    }
+  },
+  "semantic_analysis": {
+    "parameters": [
+      {
+        "name": "p_cliente_id",
+        "direction": "IN",
+        "type": "BIGINT"
+      },
+      {
+        "name": "p_data_inicio",
+        "direction": "IN",
+        "type": "DATE"
+      },
+      {
+        "name": "p_data_fim",
+        "direction": "IN",
+        "type": "DATE"
+      }
+    ],
+    "out_parameters": [],
+    "variables": [
+      {
+        "name": "v_saldo_atual",
+        "type": "NUMERIC(18,2)",
+        "default": null
+      }
+    ],
+    "cursors": [],
+    "constructs": {
+      "has_exception": true,
+      "has_raise_exception": true,
+      "has_raise_notice": true,
+      "has_raise_warning": true,
+      "has_for_update": false,
+      "has_get_diagnostics": false,
+      "has_loop": false,
+      "has_open_cursor": false,
+      "has_fetch": false,
+      "has_return_query": true,
+      "has_recursive_cte": true,
+      "has_jsonb": false,
+      "has_case": true,
+      "has_transaction_keywords": true
+    },
+    "nested_calls": [
+      "numeric",
+      "fn_saldo_cliente",
+      "as",
+      "in"
+    ],
+    "tables_referenced": [
+      "contas",
+      "meses",
+      "movimento",
+      "transacoes"
+    ],
+    "risk_flags": [
+      {
+        "code": "exception_handler",
+        "severity": "warning",
+        "message": "EXCEPTION / RAISE EXCEPTION blocks must map to Python error handling.",
+        "translation_hint": "Raise domain exceptions in Python; keep audit logging side-effects."
+      },
+      {
+        "code": "recursive_cte",
+        "severity": "critical",
+        "message": "WITH RECURSIVE CTE detected.",
+        "translation_hint": "Keep recursive CTE as parameterized SQL unless a clear Python rewrite is safer."
+      },
+      {
+        "code": "return_query",
+        "severity": "warning",
+        "message": "SETOF / RETURN QUERY pattern detected.",
+        "translation_hint": "Expose an async generator or list[dict] / DataFrame-like result in Python."
+      },
+      {
+        "code": "nested_function_call",
+        "severity": "warning",
+        "message": "Nested function calls detected: numeric, fn_saldo_cliente, as, in.",
+        "translation_hint": "Import/call the modernized sibling module or inline when trivial."
+      },
+      {
+        "code": "raise_notice",
+        "severity": "info",
+        "message": "RAISE NOTICE/WARNING used for observability.",
+        "translation_hint": "Map to logging.getLogger(__name__).info/warning."
+      }
+    ],
+    "translation_hints": [
+      "Map RAISE EXCEPTION to typed Python exceptions.",
+      "Preserve recursive CTE in SQL text executed from Python.",
+      "Return tabular results as list[dict] or async iterator.",
+      "Resolve nested calls via imports of modernized modules."
+    ],
+    "complexity": "high",
+    "recommended_strategy": "hybrid_sql_in_python"
+  },
+  "generation": {
+    "model_used": "nvidia/nemotron-3-super-120b-a12b:free",
+    "attempts": [
+      {
+        "model": "qwen/qwen3.8-27b:free",
+        "ok": false,
+        "error": "Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3.8-27b:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'ModelRun', 'is_byok': False, 'limit_source': 'upstream_provider_shared_pool', 'remedy_hint': 'Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to another provider with provider routing: https://openrouter.ai/docs/features/provider-routing'}}, 'user_id': 'user_3K9Hf6WYDp6Zjjtm4xl7P9Kq2SE'}"
+      },
+      {
+        "model": "nvidia/nemotron-3-super-120b-a12b:free",
+        "ok": true
+      }
+    ],
+    "fallback_triggered": true,
+    "prompt_version": "generation_system_v1",
+    "prompt_hash": "4e7f5f9d2200f57c",
+    "notes": [
+      "generated_with:nvidia/nemotron-3-super-120b-a12b:free"
+    ]
+  },
+  "validation": {
+    "ast": {
+      "ok": true,
+      "error": null
+    },
+    "ruff": {
+      "ok": false,
+      "issues": [
+        {
+          "code": "I001",
+          "message": "Import block is un-sorted or un-formatted",
+          "lineno": 5
+        },
+        {
+          "code": "UP035",
+          "message": "`typing.List` is deprecated, use `list` instead",
+          "lineno": 6
+        },
+        {
+          "code": "UP035",
+          "message": "`typing.Dict` is deprecated, use `dict` instead",
+          "lineno": 6
+        },
+        {
+          "code": "UP006",
+          "message": "Use `list` instead of `List` for type annotation",
+          "lineno": 25
+        },
+        {
+          "code": "UP006",
+          "message": "Use `dict` instead of `Dict` for type annotation",
+          "lineno": 25
+        }
+      ],
+      "available": true
+    }
+  },
+  "evaluation": {
+    "scores": {
+      "ast_parse_success": 1.0,
+      "pipeline_completion": 1.0,
+      "structural_mapping_score": 1.0,
+      "generated_loc": 115.0,
+      "ruff_clean": 0.0
+    },
+    "details": {
+      "risk_coverage": [
+        {
+          "code": "exception_handler",
+          "addressed": true
+        },
+        {
+          "code": "recursive_cte",
+          "addressed": true
+        },
+        {
+          "code": "return_query",
+          "addressed": true
+        },
+        {
+          "code": "nested_function_call",
+          "addressed": true
+        },
+        {
+          "code": "raise_notice",
+          "addressed": true
+        }
+      ],
+      "ast": {
+        "ok": true,
+        "error": null
+      },
+      "ruff_issue_count": 5
+    }
+  },
+  "timings_ms": {
+    "parsing": 11.9,
+    "semantic_analysis": 0.04,
+    "generation": 38509.61,
+    "validation": 513.0
+  },
+  "errors": [],
+  "persistence_error": "DLL load failed while importing _util_cy: Uma política de Controle de Aplicativo bloqueou este arquivo."
+}

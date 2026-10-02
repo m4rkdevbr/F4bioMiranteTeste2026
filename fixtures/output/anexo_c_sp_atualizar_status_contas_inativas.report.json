@@ -1,0 +1,193 @@
+{
+  "run_id": "13b0cedb-f3cb-440a-9554-4bead6750c0c",
+  "procedure_name": "anexo_c_sp_atualizar_status_contas_inativas",
+  "parsing": {
+    "errors": [],
+    "ir_summary": {
+      "kind": "procedure",
+      "name": "sp_atualizar_status_contas_inativas",
+      "param_count": 2,
+      "sql_fragment_count": 2
+    }
+  },
+  "semantic_analysis": {
+    "parameters": [
+      {
+        "name": "p_dias",
+        "direction": "IN",
+        "type": "INT"
+      },
+      {
+        "name": "p_afetadas",
+        "direction": "OUT",
+        "type": "INT"
+      }
+    ],
+    "out_parameters": [
+      {
+        "name": "p_afetadas",
+        "direction": "OUT",
+        "type": "INT"
+      }
+    ],
+    "variables": [],
+    "cursors": [],
+    "constructs": {
+      "has_exception": true,
+      "has_raise_exception": true,
+      "has_raise_notice": false,
+      "has_raise_warning": false,
+      "has_for_update": false,
+      "has_get_diagnostics": true,
+      "has_loop": false,
+      "has_open_cursor": false,
+      "has_fetch": false,
+      "has_return_query": false,
+      "has_recursive_cte": false,
+      "has_jsonb": true,
+      "has_case": false,
+      "has_transaction_keywords": true
+    },
+    "nested_calls": [
+      "where",
+      "log_auditoria"
+    ],
+    "tables_referenced": [
+      "contas",
+      "log_auditoria",
+      "transacoes"
+    ],
+    "risk_flags": [
+      {
+        "code": "exception_handler",
+        "severity": "warning",
+        "message": "EXCEPTION / RAISE EXCEPTION blocks must map to Python error handling.",
+        "translation_hint": "Raise domain exceptions in Python; keep audit logging side-effects."
+      },
+      {
+        "code": "jsonb",
+        "severity": "info",
+        "message": "JSONB / jsonb_build_object usage detected.",
+        "translation_hint": "Use dict payloads and JSON/JSONB binds in SQLAlchemy."
+      },
+      {
+        "code": "nested_function_call",
+        "severity": "warning",
+        "message": "Nested function calls detected: where, log_auditoria.",
+        "translation_hint": "Import/call the modernized sibling module or inline when trivial."
+      },
+      {
+        "code": "get_diagnostics",
+        "severity": "info",
+        "message": "GET DIAGNOSTICS ROW_COUNT usage detected.",
+        "translation_hint": "Use Result.rowcount from SQLAlchemy execution."
+      },
+      {
+        "code": "out_parameters",
+        "severity": "info",
+        "message": "OUT/INOUT parameters: ['p_afetadas'].",
+        "translation_hint": "Expose as dataclass / NamedTuple / dict return value."
+      }
+    ],
+    "translation_hints": [
+      "Map RAISE EXCEPTION to typed Python exceptions.",
+      "Resolve nested calls via imports of modernized modules.",
+      "Return OUT parameters as a structured Python object."
+    ],
+    "complexity": "medium",
+    "recommended_strategy": "python_with_parameterized_sql"
+  },
+  "generation": {
+    "model_used": "nvidia/nemotron-3-super-120b-a12b:free",
+    "attempts": [
+      {
+        "model": "qwen/qwen3.8-27b:free",
+        "ok": false,
+        "error": "Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3.8-27b:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'ModelRun', 'is_byok': False, 'provider_error_code': '429', 'limit_source': 'upstream_provider_shared_pool', 'remedy_hint': 'Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to another provider with provider routing: https://openrouter.ai/docs/features/provider-routing'}}, 'user_id': 'user_3K9Hf6WYDp6Zjjtm4xl7P9Kq2SE'}"
+      },
+      {
+        "model": "nvidia/nemotron-3-super-120b-a12b:free",
+        "ok": true
+      }
+    ],
+    "fallback_triggered": true,
+    "prompt_version": "generation_system_v1",
+    "prompt_hash": "2a6a5f8d5785f08c",
+    "notes": [
+      "generated_with:nvidia/nemotron-3-super-120b-a12b:free"
+    ]
+  },
+  "validation": {
+    "ast": {
+      "ok": true,
+      "error": null
+    },
+    "ruff": {
+      "ok": false,
+      "issues": [
+        {
+          "code": "I001",
+          "message": "Import block is un-sorted or un-formatted",
+          "lineno": 5
+        },
+        {
+          "code": "UP035",
+          "message": "`typing.Dict` is deprecated, use `dict` instead",
+          "lineno": 6
+        },
+        {
+          "code": "UP006",
+          "message": "Use `dict` instead of `Dict` for type annotation",
+          "lineno": 15
+        }
+      ],
+      "available": true
+    }
+  },
+  "evaluation": {
+    "scores": {
+      "ast_parse_success": 1.0,
+      "pipeline_completion": 1.0,
+      "structural_mapping_score": 1.0,
+      "generated_loc": 53.0,
+      "ruff_clean": 0.0
+    },
+    "details": {
+      "risk_coverage": [
+        {
+          "code": "exception_handler",
+          "addressed": true
+        },
+        {
+          "code": "jsonb",
+          "addressed": true
+        },
+        {
+          "code": "nested_function_call",
+          "addressed": true
+        },
+        {
+          "code": "get_diagnostics",
+          "addressed": true
+        },
+        {
+          "code": "out_parameters",
+          "addressed": true
+        }
+      ],
+      "ast": {
+        "ok": true,
+        "error": null
+      },
+      "ruff_issue_count": 3
+    }
+  },
+  "timings_ms": {
+    "parsing": 14.02,
+    "semantic_analysis": 0.02,
+    "generation": 31224.23,
+    "validation": 507.12
+  },
+  "errors": [],
+  "persistence_error": "DLL load failed while importing _util_cy: Uma política de Controle de Aplicativo bloqueou este arquivo."
+}

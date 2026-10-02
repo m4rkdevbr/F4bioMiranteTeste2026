@@ -1,0 +1,260 @@
+{
+  "run_id": "b935bc5e-2c61-427d-999f-172996c6aee0",
+  "procedure_name": "anexo_e_sp_processar_lote_taxas",
+  "parsing": {
+    "errors": [],
+    "ir_summary": {
+      "kind": "procedure",
+      "name": "sp_processar_lote_taxas",
+      "param_count": 1,
+      "sql_fragment_count": 6
+    }
+  },
+  "semantic_analysis": {
+    "parameters": [
+      {
+        "name": "p_data_referencia",
+        "direction": "IN",
+        "type": "DATE"
+      }
+    ],
+    "out_parameters": [],
+    "variables": [
+      {
+        "name": "v_id",
+        "type": "BIGINT",
+        "default": null
+      },
+      {
+        "name": "v_origem",
+        "type": "BIGINT",
+        "default": null
+      },
+      {
+        "name": "v_tipo",
+        "type": "VARCHAR(20)",
+        "default": null
+      },
+      {
+        "name": "v_valor",
+        "type": "NUMERIC(18,2)",
+        "default": null
+      },
+      {
+        "name": "v_taxa",
+        "type": "NUMERIC(18,2)",
+        "default": null
+      },
+      {
+        "name": "v_percentual",
+        "type": "NUMERIC(7,4)",
+        "default": null
+      },
+      {
+        "name": "v_minimo",
+        "type": "NUMERIC(18,2)",
+        "default": null
+      },
+      {
+        "name": "v_total_taxas",
+        "type": "NUMERIC(18,2)",
+        "default": "0"
+      },
+      {
+        "name": "v_count",
+        "type": "INT",
+        "default": "0"
+      }
+    ],
+    "cursors": [
+      {
+        "name": "cur_transacoes",
+        "query": "SELECT id, conta_origem_id, tipo, valor\n FROM transacoes\n WHERE DATE(data_transacao) = p_data_referencia\n AND status = 'EFETIVADA'\n AND tipo <> 'TARIFA'"
+      }
+    ],
+    "constructs": {
+      "has_exception": false,
+      "has_raise_exception": false,
+      "has_raise_notice": false,
+      "has_raise_warning": false,
+      "has_for_update": false,
+      "has_get_diagnostics": false,
+      "has_loop": true,
+      "has_open_cursor": true,
+      "has_fetch": true,
+      "has_return_query": false,
+      "has_recursive_cte": false,
+      "has_jsonb": true,
+      "has_case": true,
+      "has_transaction_keywords": true
+    },
+    "nested_calls": [
+      "date",
+      "varchar",
+      "numeric",
+      "transacoes",
+      "log_auditoria"
+    ],
+    "tables_referenced": [
+      "contas",
+      "log_auditoria",
+      "transacoes"
+    ],
+    "risk_flags": [
+      {
+        "code": "cursor_loop",
+        "severity": "critical",
+        "message": "Explicit cursor/loop detected; naive translation may cause N+1 queries.",
+        "translation_hint": "Prefer set-based SQL or bulk fetch + batch DML in Python."
+      },
+      {
+        "code": "jsonb",
+        "severity": "info",
+        "message": "JSONB / jsonb_build_object usage detected.",
+        "translation_hint": "Use dict payloads and JSON/JSONB binds in SQLAlchemy."
+      },
+      {
+        "code": "nested_function_call",
+        "severity": "warning",
+        "message": "Nested function calls detected: date, varchar, numeric, transacoes, log_auditoria.",
+        "translation_hint": "Import/call the modernized sibling module or inline when trivial."
+      }
+    ],
+    "translation_hints": [
+      "Refactor cursor loops to set-based or bulk operations.",
+      "Resolve nested calls via imports of modernized modules."
+    ],
+    "complexity": "high",
+    "recommended_strategy": "hybrid_sql_in_python"
+  },
+  "generation": {
+    "model_used": "nvidia/nemotron-3-super-120b-a12b:free",
+    "attempts": [
+      {
+        "model": "qwen/qwen3.8-27b:free",
+        "ok": false,
+        "error": "Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3.8-27b:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'ModelRun', 'is_byok': False, 'limit_source': 'upstream_provider_shared_pool', 'remedy_hint': 'Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to another provider with provider routing: https://openrouter.ai/docs/features/provider-routing'}}, 'user_id': 'user_3K9Hf6WYDp6Zjjtm4xl7P9Kq2SE'}"
+      },
+      {
+        "model": "nvidia/nemotron-3-super-120b-a12b:free",
+        "ok": true
+      }
+    ],
+    "fallback_triggered": true,
+    "prompt_version": "generation_system_v1",
+    "prompt_hash": "a4450c6669626998",
+    "notes": [
+      "generated_with:nvidia/nemotron-3-super-120b-a12b:free"
+    ]
+  },
+  "validation": {
+    "ast": {
+      "ok": true,
+      "error": null
+    },
+    "ruff": {
+      "ok": false,
+      "issues": [
+        {
+          "code": "UP009",
+          "message": "UTF-8 encoding declaration is unnecessary",
+          "lineno": 1
+        },
+        {
+          "code": "I001",
+          "message": "Import block is un-sorted or un-formatted",
+          "lineno": 7
+        },
+        {
+          "code": "UP035",
+          "message": "`typing.List` is deprecated, use `list` instead",
+          "lineno": 10
+        },
+        {
+          "code": "UP035",
+          "message": "`typing.Dict` is deprecated, use `dict` instead",
+          "lineno": 10
+        },
+        {
+          "code": "F821",
+          "message": "Undefined name `Date`",
+          "lineno": 54
+        },
+        {
+          "code": "F821",
+          "message": "Undefined name `Date`",
+          "lineno": 55
+        },
+        {
+          "code": "UP006",
+          "message": "Use `dict` instead of `Dict` for type annotation",
+          "lineno": 105
+        },
+        {
+          "code": "UP006",
+          "message": "Use `dict` instead of `Dict` for type annotation",
+          "lineno": 130
+        },
+        {
+          "code": "UP006",
+          "message": "Use `list` instead of `List` for type annotation",
+          "lineno": 131
+        },
+        {
+          "code": "UP006",
+          "message": "Use `dict` instead of `Dict` for type annotation",
+          "lineno": 131
+        },
+        {
+          "code": "UP006",
+          "message": "Use `list` instead of `List` for type annotation",
+          "lineno": 132
+        },
+        {
+          "code": "UP006",
+          "message": "Use `dict` instead of `Dict` for type annotation",
+          "lineno": 132
+        }
+      ],
+      "available": true
+    }
+  },
+  "evaluation": {
+    "scores": {
+      "ast_parse_success": 1.0,
+      "pipeline_completion": 1.0,
+      "structural_mapping_score": 1.0,
+      "generated_loc": 177.0,
+      "ruff_clean": 0.0
+    },
+    "details": {
+      "risk_coverage": [
+        {
+          "code": "cursor_loop",
+          "addressed": true
+        },
+        {
+          "code": "jsonb",
+          "addressed": true
+        },
+        {
+          "code": "nested_function_call",
+          "addressed": true
+        }
+      ],
+      "ast": {
+        "ok": true,
+        "error": null
+      },
+      "ruff_issue_count": 12
+    }
+  },
+  "timings_ms": {
+    "parsing": 5.84,
+    "semantic_analysis": 0.04,
+    "generation": 181894.23,
+    "validation": 494.79
+  },
+  "errors": [],
+  "persistence_error": "DLL load failed while importing _util_cy: Uma política de Controle de Aplicativo bloqueou este arquivo."
+}

@@ -1,0 +1,75 @@
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Challenge source PDF (not part of delivery artifacts)
+Desafio_Tecnico*.pdf
+*.plan.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+.venv312/
+venv/
+ENV/
+env/
+
+# Test / lint caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# IDE / editors (do not commit tooling fingerprints)
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.DS_Store
+Thumbs.db
+
+# Local runtime
+logs/
+*.log
+tmp/
+temp/
+.langgraph_api/
+.langgraph_ops/
+
+# Docker volumes / dumps
+pgdata/
+*.sql.gz
+dump.sql
+
+# Node (if any tooling appears)
+node_modules/

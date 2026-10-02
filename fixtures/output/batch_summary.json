@@ -1,0 +1,37 @@
+[
+  {
+    "name": "anexo_b_fn_saldo_cliente",
+    "status": "success",
+    "history_id": null,
+    "ast_ok": true,
+    "model": "qwen/qwen3.8-27b:free"
+  },
+  {
+    "name": "anexo_c_sp_atualizar_status_contas_inativas",
+    "status": "partial",
+    "history_id": null,
+    "ast_ok": true,
+    "model": "nvidia/nemotron-3-super-120b-a12b:free"
+  },
+  {
+    "name": "anexo_d_sp_transferir_entre_contas",
+    "status": "partial",
+    "history_id": null,
+    "ast_ok": true,
+    "model": "nvidia/nemotron-3-super-120b-a12b:free"
+  },
+  {
+    "name": "anexo_e_sp_processar_lote_taxas",
+    "status": "partial",
+    "history_id": null,
+    "ast_ok": true,
+    "model": "nvidia/nemotron-3-super-120b-a12b:free"
+  },
+  {
+    "name": "anexo_f_sp_relatorio_mensal_cliente",
+    "status": "partial",
+    "history_id": null,
+    "ast_ok": true,
+    "model": "nvidia/nemotron-3-super-120b-a12b:free"
+  }
+]

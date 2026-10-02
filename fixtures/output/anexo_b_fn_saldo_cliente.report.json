@@ -1,0 +1,123 @@
+{
+  "run_id": "d08f2f46-690b-47ee-a273-9ce9be5aee8e",
+  "procedure_name": "anexo_b_fn_saldo_cliente",
+  "parsing": {
+    "errors": [],
+    "ir_summary": {
+      "kind": "function",
+      "name": "fn_saldo_cliente",
+      "param_count": 1,
+      "sql_fragment_count": 1
+    }
+  },
+  "semantic_analysis": {
+    "parameters": [
+      {
+        "name": "p_cliente_id",
+        "direction": "IN",
+        "type": "BIGINT"
+      }
+    ],
+    "out_parameters": [],
+    "variables": [
+      {
+        "name": "v_total",
+        "type": "NUMERIC(18,2)",
+        "default": null
+      }
+    ],
+    "cursors": [],
+    "constructs": {
+      "has_exception": false,
+      "has_raise_exception": false,
+      "has_raise_notice": false,
+      "has_raise_warning": false,
+      "has_for_update": false,
+      "has_get_diagnostics": false,
+      "has_loop": false,
+      "has_open_cursor": false,
+      "has_fetch": false,
+      "has_return_query": false,
+      "has_recursive_cte": false,
+      "has_jsonb": false,
+      "has_case": false,
+      "has_transaction_keywords": true
+    },
+    "nested_calls": [
+      "numeric"
+    ],
+    "tables_referenced": [
+      "contas",
+      "v_total"
+    ],
+    "risk_flags": [
+      {
+        "code": "nested_function_call",
+        "severity": "warning",
+        "message": "Nested function calls detected: numeric.",
+        "translation_hint": "Import/call the modernized sibling module or inline when trivial."
+      }
+    ],
+    "translation_hints": [
+      "Resolve nested calls via imports of modernized modules."
+    ],
+    "complexity": "medium",
+    "recommended_strategy": "python_with_parameterized_sql"
+  },
+  "generation": {
+    "model_used": "qwen/qwen3.8-27b:free",
+    "attempts": [
+      {
+        "model": "qwen/qwen3.8-27b:free",
+        "ok": true
+      }
+    ],
+    "fallback_triggered": false,
+    "prompt_version": "generation_system_v1",
+    "prompt_hash": "be8d94fd467a8e87",
+    "notes": [
+      "generated_with:qwen/qwen3.8-27b:free"
+    ]
+  },
+  "validation": {
+    "ast": {
+      "ok": true,
+      "error": null
+    },
+    "ruff": {
+      "ok": true,
+      "issues": [],
+      "available": true
+    }
+  },
+  "evaluation": {
+    "scores": {
+      "ast_parse_success": 1.0,
+      "pipeline_completion": 1.0,
+      "structural_mapping_score": 1.0,
+      "generated_loc": 21.0,
+      "ruff_clean": 1.0
+    },
+    "details": {
+      "risk_coverage": [
+        {
+          "code": "nested_function_call",
+          "addressed": true
+        }
+      ],
+      "ast": {
+        "ok": true,
+        "error": null
+      },
+      "ruff_issue_count": 0
+    }
+  },
+  "timings_ms": {
+    "parsing": 17.67,
+    "semantic_analysis": 0.02,
+    "generation": 97982.64,
+    "validation": 501.32
+  },
+  "errors": [],
+  "persistence_error": "DLL load failed while importing _util_cy: Uma política de Controle de Aplicativo bloqueou este arquivo."
+}
