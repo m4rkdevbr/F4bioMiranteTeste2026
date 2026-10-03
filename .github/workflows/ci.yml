@@ -23,5 +23,5 @@ jobs:
         run: mypy src/modernization_pipeline
       - name: Pytest
         env:
-          PYTHONPATH: src
+          PYTHONPATH: src:.
         run: pytest -q

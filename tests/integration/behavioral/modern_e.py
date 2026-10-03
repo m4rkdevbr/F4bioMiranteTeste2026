@@ -6,7 +6,8 @@ from datetime import date
 from decimal import Decimal
 
 import asyncpg
-from tests.integration.behavioral.db import SCHEMA
+
+from .db import SCHEMA
 
 
 def _taxa_ajustada(

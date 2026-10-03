@@ -6,7 +6,8 @@ from datetime import date, datetime, time
 from decimal import Decimal
 
 import pytest
-from tests.integration.behavioral.db import (
+
+from .behavioral.db import (
     FIXTURES,
     SCHEMA,
     connect,
@@ -16,7 +17,7 @@ from tests.integration.behavioral.db import (
     seed_client_and_accounts,
     snapshot_banking,
 )
-from tests.integration.behavioral.modern_e import processar_lote_taxas
+from .behavioral.modern_e import processar_lote_taxas
 
 pytestmark = pytest.mark.skipif(not db_url(), reason="DATABASE_URL_SYNC not configured")
 

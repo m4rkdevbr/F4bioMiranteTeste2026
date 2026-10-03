@@ -5,7 +5,8 @@ from __future__ import annotations
 from decimal import Decimal
 
 import asyncpg
-from tests.integration.behavioral.db import SCHEMA
+
+from .db import SCHEMA
 
 
 class TransferError(RuntimeError):

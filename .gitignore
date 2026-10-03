@@ -9,6 +9,10 @@
 Desafio_Tecnico*.pdf
 *.plan.md
 
+# Local validation scratch (optional; not required for delivery)
+scripts/validation_battery.py
+fixtures/validation/
+
 # Python
 __pycache__/
 *.py[cod]
