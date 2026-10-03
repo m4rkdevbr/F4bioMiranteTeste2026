@@ -155,7 +155,7 @@ pytest tests/integration/test_behavioral_anexo_*.py -q
 | C | `sp_atualizar_status_contas_inativas`: contas sem movimento recente viram `INATIVA`; parâmetro inválido não altera estado |
 | D | `sp_transferir_entre_contas`: sucesso (saldos + `TRANSFERENCIA` + log OK) e rollback em saldo insuficiente / conta inativa — PL/pgSQL `CALL` vs implementação asyncpg com `FOR UPDATE` |
 | E | `sp_processar_lote_taxas`: cursor legado vs caminho **set-based** (anti-N+1); mesmos débitos, tarifas e `LOTE_PROCESSADO` |
-| F | `sp_relatorio_mensal_cliente`: spine mensal + créditos/débitos/qtd iguais ao `RETURN QUERY` legado; período inválido falha nos dois caminhos |
+| F | `sp_relatorio_mensal_cliente`: spine mensal + créditos/débitos/qtd iguais ao `RETURN QUERY` legado; período inválido → fallback (`WHEN OTHERS`), não exceção externa |
 
 Helpers em `tests/integration/behavioral/` (schema isolado `beh` + Anexo A).
 
