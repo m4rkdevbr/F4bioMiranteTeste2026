@@ -77,3 +77,8 @@ dump.sql
 
 # Node (if any tooling appears)
 node_modules/
+
+# Personal interview prep (not part of delivery)
+docs/INTERVIEW_NOTES.md
+_strip_cursor_trailer.py
+

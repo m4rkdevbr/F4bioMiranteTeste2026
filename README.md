@@ -202,7 +202,6 @@ Ver [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md).
 - [docs/LLM_AND_PROMPTS.md](docs/LLM_AND_PROMPTS.md)
 - [docs/EVALUATION.md](docs/EVALUATION.md)
 - [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md)
-- [docs/INTERVIEW_NOTES.md](docs/INTERVIEW_NOTES.md)
 
 ## Bibliotecas externas (justificativa)
 
