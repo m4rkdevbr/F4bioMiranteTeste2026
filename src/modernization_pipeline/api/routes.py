@@ -1,11 +1,12 @@
-"""HTTP API: POST /modernize, GET /health, GET /evaluation/summary."""
+"""HTTP API: POST /modernize, GET /health, GET /evaluation/summary.
 
-from __future__ import annotations
+Mounted by LangGraph CLI via langgraph.json → http.app.
+"""
 
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 app = FastAPI(
     title="Modernization Pipeline",
@@ -15,6 +16,8 @@ app = FastAPI(
 
 
 class ModernizeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     source_code: str = Field(..., min_length=1, description="PL/pgSQL function or procedure source")
     schema_sql: str | None = Field(default=None, description="Optional DDL context (Anexo A)")
     procedure_name: str | None = Field(default=None)
@@ -22,11 +25,17 @@ class ModernizeRequest(BaseModel):
 
 
 class ModernizeResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     status: str
     generated_code: str | None
     report: dict[str, Any]
     history_id: str | None
     run_id: str | None = None
+
+
+ModernizeRequest.model_rebuild()
+ModernizeResponse.model_rebuild()
 
 
 @app.get("/health")
@@ -48,16 +57,16 @@ async def health() -> dict[str, str]:
     }
 
 
-@app.post("/modernize", response_model=ModernizeResponse)
-async def modernize(payload: ModernizeRequest) -> ModernizeResponse:
+@app.post("/modernize")
+async def modernize(body: ModernizeRequest) -> ModernizeResponse:
     from modernization_pipeline.graph import run_pipeline
 
     try:
         result = await run_pipeline(
-            source_code=payload.source_code,
-            schema_sql=payload.schema_sql,
-            procedure_name=payload.procedure_name,
-            metadata=payload.metadata,
+            source_code=body.source_code,
+            schema_sql=body.schema_sql,
+            procedure_name=body.procedure_name,
+            metadata=body.metadata,
         )
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=500, detail={"error": str(exc)}) from exc

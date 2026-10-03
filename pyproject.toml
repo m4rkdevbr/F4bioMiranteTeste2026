@@ -11,8 +11,8 @@ requires-python = ">=3.11,<3.15"
 license = { text = "MIT" }
 authors = [{ name = "m4rkdevbr" }]
 dependencies = [
-  "langgraph>=0.2.60,<0.4",
-  "langchain-core>=0.3.0,<0.4",
+  "langgraph>=0.3.27,<0.4",
+  "langchain-core>=0.3.64,<0.4",
   "langchain-openai>=0.2.0,<0.4",
   "langfuse>=2.50.0,<3",
   "sqlglot>=25.0.0,<27",
@@ -23,6 +23,10 @@ dependencies = [
   "fastapi>=0.115.0,<1",
   "uvicorn[standard]>=0.32.0,<1",
   "python-dotenv>=1.0.0,<2",
+  # Pin CLI stack: langgraph-api 0.2.x + runtime-inmem>=0.6.3 crash on USE_RUNTIME_CONTEXT_API
+  "langgraph-cli[inmem]>=0.2.0,<0.4",
+  "langgraph-api>=0.2.74,<0.3",
+  "langgraph-runtime-inmem>=0.6.0,<0.6.3",
 ]
 
 [project.optional-dependencies]

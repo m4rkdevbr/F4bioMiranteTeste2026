@@ -2,33 +2,39 @@
 
 ## Objetivo
 
-Rastrear cada execução do pipeline: trace por run, spans por nó (via callbacks LangChain/LangGraph), custo/latência das gerações quando o provider reporta.
+Rastrear cada execução do pipeline: trace por run, spans/generations das chamadas LLM, latência e scores de evaluation.
 
-## Configuração
+## Subir self-hosted (recomendado para o desafio)
 
-No `.env`:
-
-```
-LANGFUSE_ENABLED=true
-LANGFUSE_PUBLIC_KEY=...
-LANGFUSE_SECRET_KEY=...
-LANGFUSE_HOST=http://localhost:3000
+```bash
+docker compose -f docker-compose.yml -f docker-compose.langfuse.yml up --build -d
 ```
 
-Com `LANGFUSE_ENABLED=false` (default), a pipeline funciona normalmente e `/health` reporta `"langfuse": "disabled"`.
+Isso sobe:
 
-## Self-hosted
+- Postgres da pipeline (`modernization`)
+- Postgres do Langfuse + `langfuse/langfuse:2`
+- Pipeline com `LANGFUSE_ENABLED=true` e keys de demo
 
-Recomenda-se o compose oficial Langfuse (versão atual do projeto). Aponte `LANGFUSE_HOST` para o serviço e reinicie o container `pipeline`.
+### Acesso
 
-## Evidência para entrega
+| Item | Valor |
+|------|-------|
+| UI | http://localhost:3000 |
+| Email | `demo@modernization.local` |
+| Senha | `demopass123` |
+| Public key | `pk-lf-demo-modernization` |
+| Secret key | `sk-lf-demo-modernization` |
 
-Após uma execução `/modernize` ou `scripts/run_annexes.py`, capture a tela de traces e salve em:
+## Como evidenciar
 
-`docs/assets/langfuse-traces.png`
+1. Abra a UI e autentique com o usuário demo.
+2. Execute um `POST /modernize` (Swagger em http://localhost:8123/docs).
+3. No Langfuse, abra o projeto **Hybrid Pipeline** e inspecione o trace (generation + scores).
+4. Capture a tela e salve em `docs/assets/langfuse-traces.png` (referenciada no README).
 
-Referencie a imagem no README.
+## Integração no código
 
-## Scores
-
-Após validação, métricas `ast_parse_success`, `structural_mapping_score`, etc. são enviadas ao Langfuse quando o client está ativo.
+- Callback LangChain em `observability/langfuse.py`
+- Scores (`ast_parse_success`, `structural_mapping_score`, etc.) enviados após a validação
+- `/health` reporta `"langfuse": "ok|disabled|degraded"`

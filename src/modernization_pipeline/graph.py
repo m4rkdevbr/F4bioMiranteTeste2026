@@ -12,7 +12,11 @@ from modernization_pipeline.nodes.generation import generation_node
 from modernization_pipeline.nodes.parsing import parsing_node
 from modernization_pipeline.nodes.semantic_analysis import semantic_analysis_node
 from modernization_pipeline.nodes.validation import validation_node
-from modernization_pipeline.observability.langfuse import get_langchain_handler, score_run
+from modernization_pipeline.observability.langfuse import (
+    finish_pipeline_trace,
+    get_langchain_handler,
+    start_pipeline_trace,
+)
 from modernization_pipeline.state import PipelineState
 
 logger = logging.getLogger(__name__)
@@ -141,12 +145,21 @@ async def run_pipeline(
     if handler is not None:
         config["callbacks"] = [handler]
 
+    trace_id = start_pipeline_trace(
+        run_id=state["run_id"] or str(uuid.uuid4()),
+        procedure_name=procedure_name,
+        metadata=metadata,
+    )
+
     result = await graph.ainvoke(state, config=config)
 
     scores = ((result.get("evaluation") or {}).get("scores")) or {}
-    if scores and handler is not None:
-        trace_id = getattr(handler, "last_trace_id", None) or getattr(handler, "trace_id", None)
-        score_run(trace_id=trace_id, scores=scores, comment="pipeline_evaluation")
+    finish_pipeline_trace(
+        trace_id=trace_id,
+        status=result.get("status"),
+        scores=scores,
+        report=result.get("report") if isinstance(result.get("report"), dict) else None,
+    )
 
     return cast(PipelineState, result)
 

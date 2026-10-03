@@ -16,10 +16,8 @@ services:
       timeout: 5s
       retries: 10
 
-  # Minimal Langfuse-compatible placeholder stack:
-  # Full Langfuse v3 requires additional services; enabling LANGFUSE_ENABLED=true
-  # against a self-hosted Langfuse (see docs/OBSERVABILITY.md) is supported.
-  # For local demos without the full Langfuse stack, keep LANGFUSE_ENABLED=false.
+  # Optional Langfuse self-hosted: docker compose -f docker-compose.yml -f docker-compose.langfuse.yml up -d
+  # Keep LANGFUSE_ENABLED=false for the minimal stack (postgres + pipeline only).
 
   pipeline:
     build: .

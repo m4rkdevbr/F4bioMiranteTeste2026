@@ -12,13 +12,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml README.md ./
+COPY pyproject.toml README.md langgraph.json ./
 COPY src ./src
 COPY prompts ./prompts
 COPY sql ./sql
 COPY scripts ./scripts
 
-RUN pip install --upgrade pip && pip install -e ".[dev]"
+RUN pip install --upgrade pip \
+    && pip install -e ".[dev]" \
+    && python -c "import langgraph_runtime_inmem, langgraph_api; print(langgraph_api.__version__)"
 
 RUN useradd --create-home --uid 10001 appuser \
     && chown -R appuser:appuser /app
@@ -26,4 +28,5 @@ USER appuser
 
 EXPOSE 8123
 
-CMD ["uvicorn", "modernization_pipeline.api.routes:app", "--host", "0.0.0.0", "--port", "8123"]
+# Official LangGraph CLI local server with custom routes from langgraph.json (http.app)
+CMD ["langgraph", "dev", "--host", "0.0.0.0", "--port", "8123", "--no-browser", "--no-reload"]

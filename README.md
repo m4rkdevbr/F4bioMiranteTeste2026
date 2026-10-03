@@ -1,6 +1,6 @@
 # Modernization Pipeline — PL/pgSQL → Python 3.14
 
-Pipeline híbrido (**regras determinísticas + LLM**) que moderniza stored procedures/functions PostgreSQL (PL/pgSQL) para módulos Python 3.14. Orquestração com **LangGraph**, geração via **OpenRouter** (modelos `:free`), persistência em **PostgreSQL**, observabilidade opcional com **Langfuse** self-hosted.
+Pipeline híbrido (**regras determinísticas + LLM**) que moderniza stored procedures/functions PostgreSQL (PL/pgSQL) para módulos Python 3.14. Orquestração com **LangGraph CLI**, geração via **OpenRouter** (modelos `:free`), persistência em **PostgreSQL**, observabilidade com **Langfuse** self-hosted (opcional).
 
 Repositório: [github.com/m4rkdevbr/F4bioMiranteTeste2026](https://github.com/m4rkdevbr/F4bioMiranteTeste2026)
 
@@ -8,8 +8,9 @@ Repositório: [github.com/m4rkdevbr/F4bioMiranteTeste2026](https://github.com/m4
 
 ```mermaid
 flowchart LR
-  Client[HTTP_Client] --> API[FastAPI]
-  API --> Graph[ModernizationGraph]
+  Client[HTTP_Client] --> CLI[LangGraph_CLI_Server]
+  CLI --> Routes[CustomRoutes_http.app]
+  Routes --> Graph[ModernizationGraph]
   subgraph nodes [LangGraph_Nodes]
     P[parsing]
     S[semantic_analysis]
@@ -22,6 +23,7 @@ flowchart LR
   V --> Pers
   Pers --> PG[(PostgreSQL)]
   G --> OR[OpenRouter_free]
+  Graph --> LF[Langfuse]
 ```
 
 | Nó | Determinístico? | Função |
@@ -32,43 +34,66 @@ flowchart LR
 | `validation` | Sim | `ast.parse`, ruff, métricas; retry único se AST falhar |
 | `persist` | Sim | Sempre grava `modernization_history` |
 
+Configuração oficial do servidor: [`langgraph.json`](langgraph.json) com `graphs.modernize` e `http.app` apontando para as rotas custom `POST /modernize` e `GET /health`.
+
 ## Decisões técnicas (trade-offs)
 
 1. **SQL híbrido no Python**: agregações/set-based e CTEs complexas permanecem como SQL parametrizado (SQLAlchemy); controle de fluxo e validações migram para Python.
 2. **Transações (`FOR UPDATE`)**: uma transação explícita no Python — não reescrever locks em optimistic locking ad hoc.
 3. **Cursores (Anexo E)**: hint explícito anti-N+1 (set-based / bulk). Tradução ingênua linha a linha é marcada como risco crítico.
-4. **LLM free (OpenRouter)**: primary `qwen/qwen3.8-27b:free` com fallback Nemotron → Gemma → Cohere code → `openrouter/free`. Rate-limit é tratado pela cadeia.
+4. **LLM free (OpenRouter)**: primary `qwen/qwen3.8-27b:free` com fallback Nemotron → Gemma → Cohere code → `openrouter/free`.
 5. **Prompt nunca é a procedure crua sozinha**: user message = JSON(IR + semantic_profile + schema opcional).
+6. **Runtime do servidor**: Python 3.12 na imagem Docker; **artefato gerado** mira Python 3.14 (type hints / estilo moderno).
 
 ## Pré-requisitos
 
 - Docker + Docker Compose
-- Python 3.12+ (imagem do serviço usa 3.12; código alinhado a Python 3.14 / 3.12+)
 - Chave OpenRouter (modelos free)
 
-## Setup rápido
+## Setup rápido (somente Compose)
 
 ```bash
 cp .env.example .env
-# edite .env e preencha OPENROUTER_API_KEY
+# preencha OPENROUTER_API_KEY no .env
 
-docker compose up --build -d postgres
-pip install -e ".[dev]"
-# aguarde health do Postgres, depois:
-docker compose up --build -d pipeline
+docker compose up --build -d
 ```
 
-Variáveis principais (ver `.env.example`):
+Serviços:
+
+| Serviço | URL |
+|---------|-----|
+| LangGraph CLI + custom routes | http://localhost:8123 |
+| OpenAPI / Swagger | http://localhost:8123/docs |
+| PostgreSQL | localhost:5432 |
+
+Health check:
+
+```bash
+curl -s http://localhost:8123/health
+```
+
+Desenvolvimento local com LangGraph CLI (sem rebuild da imagem):
+
+```bash
+pip install -e ".[dev]"
+docker compose up -d postgres
+langgraph dev --host 127.0.0.1 --port 8123
+```
+
+### Variáveis de ambiente (`.env.example`)
 
 | Variável | Descrição |
 |----------|-----------|
 | `OPENROUTER_API_KEY` | Chave OpenRouter (somente `.env` local) |
 | `LLM_MODEL` | Modelo free primary |
 | `LLM_FALLBACK_MODELS` | Cadeia de fallback free |
-| `DATABASE_URL` | SQLAlchemy async (`postgresql+asyncpg://...`) |
-| `LANGFUSE_*` | Opcional; `LANGFUSE_ENABLED=false` por padrão |
+| `DATABASE_URL` | asyncpg DSN (`postgresql+asyncpg://...`) |
+| `DATABASE_URL_SYNC` | DSN sync/`postgresql://...` |
+| `LANGFUSE_ENABLED` | `true`/`false` |
+| `LANGFUSE_HOST` / `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` | Observabilidade |
 
-## API
+## API (rotas custom do LangGraph CLI)
 
 ### `GET /health`
 
@@ -76,62 +101,47 @@ Variáveis principais (ver `.env.example`):
 curl -s http://localhost:8123/health
 ```
 
-Exemplo: `{"status":"ok","postgres":"ok","langfuse":"disabled"}`
-
 ### `POST /modernize`
 
 ```bash
 curl -s -X POST http://localhost:8123/modernize \
   -H "Content-Type: application/json" \
-  -d "{\"source_code\": \"$(cat sql/fixtures/anexo_b_fn_saldo_cliente.sql | jq -Rs .)\"}"
-```
-
-Resposta:
-
-```json
-{
-  "status": "success|partial|failure",
-  "generated_code": "...",
-  "report": { "parsing": {}, "semantic_analysis": {}, "generation": {}, "validation": {}, "evaluation": {}, "timings_ms": {} },
-  "history_id": "uuid",
-  "run_id": "uuid"
-}
+  -d "{\"source_code\": $(jq -Rs . sql/fixtures/anexo_b_fn_saldo_cliente.sql)}"
 ```
 
 ### `GET /evaluation/summary`
 
-Agrega métricas registradas em `pipeline_evaluation_scores`.
+Agrega métricas em `pipeline_evaluation_scores`.
 
 ## Banco de dados
 
-Tabela obrigatória `modernization_history` (criada em `sql/init/01_schema.sql`):
+Tabela obrigatória `modernization_history` (schema em `deploy/postgres/01_schema.sql`, embutido na imagem Postgres):
 
 - `id`, `source_code`, `generated_code`, `report` (JSONB), `status`, `created_at`
 
 Toda execução é persistida, independentemente do desfecho.
 
-## Casos de teste (Anexos B–F)
+## Casos de teste e evaluation (Anexos B–F)
 
-Fixtures em `sql/fixtures/`. Schema de contexto: `anexo_a_schema.sql`.
+Fixtures: `sql/fixtures/`. Saídas: `fixtures/output/`.
 
 ```bash
-# com Postgres + OPENROUTER_API_KEY configurados
-set PYTHONPATH=src
 python scripts/run_annexes.py
 ```
 
-Saídas em `fixtures/output/*.py` e `*.report.json`.
+### Resultado do batch + métricas
 
-| Anexo | Procedure | Complexidade | Resultado local | Modelo |
-|-------|-----------|--------------|-----------------|--------|
-| B | `fn_saldo_cliente` | Baixa | success (AST ok) | `qwen/qwen3.8-27b:free` |
-| C | `sp_atualizar_status_contas_inativas` | Baixa-média | partial (AST ok) | `nvidia/nemotron-3-super-120b-a12b:free` |
-| D | `sp_transferir_entre_contas` | Média | partial (AST ok) | `nvidia/nemotron-3-super-120b-a12b:free` |
-| E | `sp_processar_lote_taxas` | Alta | partial (AST ok) | `nvidia/nemotron-3-super-120b-a12b:free` |
-| F | `sp_relatorio_mensal_cliente` | Muito alta | partial (AST ok) | `nvidia/nemotron-3-super-120b-a12b:free` |
+| Anexo | Status | AST | Ruff clean | Structural | LOC | Modelo |
+|-------|--------|-----|------------|------------|-----|--------|
+| B `fn_saldo_cliente` | success | 1.0 | 1.0 | 1.0 | 21 | `qwen/qwen3.8-27b:free` |
+| C `sp_atualizar_status_contas_inativas` | partial | 1.0 | 0.0 | 1.0 | 53 | `nemotron-3-super-120b:free` |
+| D `sp_transferir_entre_contas` | partial | 1.0 | 0.0 | 1.0 | 140 | `nemotron-3-super-120b:free` |
+| E `sp_processar_lote_taxas` | partial | 1.0 | 0.0 | 1.0 | 177 | `nemotron-3-super-120b:free` |
+| F `sp_relatorio_mensal_cliente` | partial | 1.0 | 0.0 | 1.0 | 115 | `nemotron-3-super-120b:free` |
 
-`partial` indica AST válido com findings de ruff (estilo), não falha de tradução. Artefatos em `fixtures/output/`.
+`partial` = AST ok com findings de estilo (ruff), não falha de tradução. Detalhes em `fixtures/output/*.report.json`.
 
+Há também teste comportamental smoke do Anexo B (`tests/integration/test_behavioral_anexo_b.py`) quando `DATABASE_URL_SYNC` está disponível.
 
 ## Qualidade
 
@@ -141,11 +151,21 @@ mypy src/modernization_pipeline
 pytest -q
 ```
 
-CI GitHub Actions executa os mesmos checks (LLM mockado nos testes de API).
+## Observabilidade (bônus Langfuse)
 
-## Observabilidade (bônus)
+```bash
+docker compose -f docker-compose.yml -f docker-compose.langfuse.yml up --build -d
+```
 
-Integração Langfuse via callbacks LangChain quando `LANGFUSE_ENABLED=true`. Ver [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md). Capture de traces pode ser anexada em `docs/assets/langfuse-traces.png`.
+- UI: http://localhost:3000  
+- Login demo: `demo@modernization.local` / `demopass123`  
+- Keys auto-init: `pk-lf-demo-modernization` / `sk-lf-demo-modernization`
+
+Após um `POST /modernize`, os traces aparecem no projeto **Hybrid Pipeline**. Evidência visual:
+
+![Langfuse traces](docs/assets/langfuse-traces.png)
+
+Ver [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md).
 
 ## Escalabilidade (próximos passos)
 
@@ -156,10 +176,9 @@ Integração Langfuse via callbacks LangChain quando `LANGFUSE_ENABLED=true`. Ve
 
 ## Limitações conhecidas
 
-- Cobertura sintática PL/pgSQL não é total (foco em desenho da pipeline e anexos B–F).
+- Cobertura sintática PL/pgSQL não é total (foco no desenho da pipeline e anexos B–F).
 - Modelos free podem oscilar em qualidade/latência; mitigado por IR + validação + fallback.
-- Equivalência comportamental contra banco de teste não é assertiva na v1 (métricas estruturais + AST).
-- Stack Langfuse completa (ClickHouse etc.) fica documentada para compose avançado; default roda sem custo SaaS.
+- Equivalência comportamental completa (todas as procedures) ainda não é a métrica principal; há smoke no Anexo B + métricas estruturais.
 
 ## Documentação adicional
 
@@ -175,11 +194,11 @@ Integração Langfuse via callbacks LangChain quando `LANGFUSE_ENABLED=true`. Ve
 
 | Biblioteca | Motivo |
 |------------|--------|
-| langgraph | Orquestração em grafo exigida |
+| langgraph + langgraph-cli | Orquestração e servidor oficial exigidos |
 | langchain-openai | Cliente OpenAI-compatible → OpenRouter |
 | sqlglot | Parsing SQL Postgres robusto |
-| sqlalchemy/asyncpg | Persistência asyncpg; SQLAlchemy como padrão no código gerado |
-| fastapi/uvicorn | Endpoints `/modernize` e `/health` |
+| asyncpg | Persistência da pipeline |
+| fastapi | Rotas custom montadas via `http.app` |
 | langfuse | Observabilidade (bônus) |
 | ruff/mypy/pytest | Qualidade estática e testes (bônus) |
 

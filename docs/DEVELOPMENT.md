@@ -19,7 +19,17 @@ Subir Postgres:
 docker compose up -d postgres
 ```
 
-Rodar API:
+Rodar servidor oficial (LangGraph CLI + custom routes):
+
+```bash
+# Postgres
+docker compose up -d postgres
+
+# LangGraph CLI (porta 8123; rotas /modernize e /health via http.app)
+langgraph dev --host 127.0.0.1 --port 8123
+```
+
+Alternativa direta (sem CLI, útil para debug):
 
 ```bash
 set PYTHONPATH=src

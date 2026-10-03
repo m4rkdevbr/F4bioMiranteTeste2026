@@ -4,5 +4,8 @@
     "modernize": "./src/modernization_pipeline/graph.py:graph"
   },
   "env": ".env",
-  "python_version": "3.12"
+  "python_version": "3.12",
+  "http": {
+    "app": "./src/modernization_pipeline/api/routes.py:app"
+  }
 }
