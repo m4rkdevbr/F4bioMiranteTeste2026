@@ -42,11 +42,25 @@ def _qualify_anexo_a(sql: str) -> str:
     return sql
 
 
-def _qualify_procedure(sql: str) -> str:
-    """Install procedure into beh schema and qualify table names inside body."""
+def _qualify_routine(sql: str) -> str:
+    """Install procedure/function into beh schema and qualify table/fn names."""
     sql = sql.replace(
         "CREATE OR REPLACE PROCEDURE sp_",
         f"CREATE OR REPLACE PROCEDURE {SCHEMA}.sp_",
+    )
+    sql = sql.replace(
+        "CREATE OR REPLACE FUNCTION sp_",
+        f"CREATE OR REPLACE FUNCTION {SCHEMA}.sp_",
+    )
+    sql = sql.replace(
+        "CREATE OR REPLACE FUNCTION fn_",
+        f"CREATE OR REPLACE FUNCTION {SCHEMA}.fn_",
+    )
+    # Qualify bare calls only (avoid turning beh.fn_ into beh.beh.fn_).
+    sql = re.sub(
+        r"(?<![\w.])fn_saldo_cliente\s*\(",
+        f"{SCHEMA}.fn_saldo_cliente(",
+        sql,
     )
     for table in ("contas", "transacoes", "taxas", "log_auditoria", "clientes"):
         sql = re.sub(
@@ -66,8 +80,9 @@ async def reset_schema(conn: asyncpg.Connection) -> None:
 
 
 async def install_procedure(conn: asyncpg.Connection, fixture_name: str) -> None:
+    """Install a fixture routine (procedure or function) into the beh schema."""
     raw = (FIXTURES / fixture_name).read_text(encoding="utf-8")
-    await conn.execute(_qualify_procedure(raw))
+    await conn.execute(_qualify_routine(raw))
 
 
 async def seed_client_and_accounts(

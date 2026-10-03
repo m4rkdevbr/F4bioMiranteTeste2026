@@ -152,8 +152,10 @@ pytest tests/integration/test_behavioral_anexo_*.py -q
 | Anexo | O que valida |
 |-------|----------------|
 | B | Smoke da agregação de saldo (SQL legado vs shape modernizado) |
+| C | `sp_atualizar_status_contas_inativas`: contas sem movimento recente viram `INATIVA`; parâmetro inválido não altera estado |
 | D | `sp_transferir_entre_contas`: sucesso (saldos + `TRANSFERENCIA` + log OK) e rollback em saldo insuficiente / conta inativa — PL/pgSQL `CALL` vs implementação asyncpg com `FOR UPDATE` |
 | E | `sp_processar_lote_taxas`: cursor legado vs caminho **set-based** (anti-N+1); mesmos débitos, tarifas e `LOTE_PROCESSADO` |
+| F | `sp_relatorio_mensal_cliente`: spine mensal + créditos/débitos/qtd iguais ao `RETURN QUERY` legado; período inválido falha nos dois caminhos |
 
 Helpers em `tests/integration/behavioral/` (schema isolado `beh` + Anexo A).
 
@@ -192,7 +194,7 @@ Ver [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md).
 
 - Cobertura sintática PL/pgSQL não é total (foco no desenho da pipeline e anexos B–F).
 - Modelos free podem oscilar em qualidade/latência; mitigado por IR + validação + fallback.
-- Equivalência comportamental automatizada cobre B (smoke), D e E (legado vs modernizado). C/F seguem com métricas estruturais + fixtures.
+- Equivalência comportamental automatizada cobre B–F (legado PL/pgSQL vs oráculos asyncpg no schema `beh`).
 
 ## Documentação adicional
 
