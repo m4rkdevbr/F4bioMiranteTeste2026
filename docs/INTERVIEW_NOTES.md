@@ -23,4 +23,4 @@ Preserva semântica/otimizador em CTEs, locks e DML set-based; Python orquestra 
 Fila, cache de IR, dialetos plugáveis, swap de modelo por env.
 
 **Limitações honestas?**  
-Modelos free, cobertura sintática parcial, equivalência comportamental ainda não automatizada end-to-end.
+Modelos free, cobertura sintática parcial; equivalência comportamental automatizada em B/D/E (C/F ainda estrutural).
